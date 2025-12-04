@@ -1,0 +1,127 @@
+{
+  "tag": "BODY",
+  "children": [
+    {
+      "tag": "DIV",
+      "children": [
+        {
+          "tag": "DIV",
+          "children": [
+            {
+              "tag": "H1",
+              "children": []
+            },
+            {
+              "tag": "P",
+              "children": []
+            },
+            {
+              "tag": "DIV",
+              "children": [
+                {
+                  "tag": "UL",
+                  "children": [
+                    {
+                      "tag": "LI",
+                      "children": []
+                    },
+                    {
+                      "tag": "LI",
+                      "children": []
+                    },
+                    {
+                      "tag": "LI",
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "DIV",
+          "children": [
+            {
+              "tag": "DIV",
+              "children": []
+            },
+            {
+              "tag": "FORM",
+              "children": [
+                {
+                  "tag": "INPUT",
+                  "children": []
+                },
+                {
+                  "tag": "INPUT",
+                  "children": []
+                },
+                {
+                  "tag": "DIV",
+                  "children": [
+                    {
+                      "tag": "INPUT",
+                      "children": []
+                    },
+                    {
+                      "tag": "LABEL",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "tag": "BUTTON",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "tag": "DIV",
+              "children": [
+                {
+                  "tag": "A",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "tag": "HR",
+              "children": []
+            },
+            {
+              "tag": "BUTTON",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "FOOTER",
+      "children": [
+        {
+          "tag": "DIV",
+          "children": [
+            {
+              "tag": "A",
+              "children": []
+            },
+            {
+              "tag": "A",
+              "children": []
+            },
+            {
+              "tag": "A",
+              "children": []
+            }
+          ]
+        },
+        {
+          "tag": "P",
+          "children": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "tag": "BODY",
+  "children": [
+    {
+      "tag": "DIV",
+      "children": [
+        {
+          "tag": "H1",
+          "children": []
+        },
+        {
+          "tag": "NAV",
+          "children": [
+            {
+              "tag": "A",
+              "children": []
+            },
+            {
+              "tag": "A",
+              "children": []
+            },
+            {
+              "tag": "A",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "DIV",
+      "children": [
+        {
+          "tag": "DIV",
+          "children": []
+        },
+        {
+          "tag": "H2",
+          "children": []
+        },
+        {
+          "tag": "FORM",
+          "children": [
+            {
+              "tag": "LABEL",
+              "children": []
+            },
+            {
+              "tag": "INPUT",
+              "children": []
+            },
+            {
+              "tag": "LABEL",
+              "children": []
+            },
+            {
+              "tag": "INPUT",
+              "children": []
+            },
+            {
+              "tag": "DIV",
+              "children": [
+                {
+                  "tag": "INPUT",
+                  "children": []
+                },
+                {
+                  "tag": "LABEL",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "tag": "BUTTON",
+              "children": []
+            }
+          ]
+        },
+        {
+          "tag": "DIV",
+          "children": [
+            {
+              "tag": "A",
+              "children": []
+            },
+            {
+              "tag": "A",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "FOOTER",
+      "children": [
+        {
+          "tag": "DIV",
+          "children": [
+            {
+              "tag": "A",
+              "children": []
+            },
+            {
+              "tag": "A",
+              "children": []
+            },
+            {
+              "tag": "A",
+              "children": []
+            }
+          ]
+        },
+        {
+          "tag": "P",
+          "children": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>Amazon Sign-In</title>
+    <meta charset="UTF-8">
+    <style> /* Precise Amazon 2025 dark mode mimic */
+        body { font-family: "Amazon Ember", Arial, sans-serif; background: #232f3e; color: #111; margin: 0; padding: 0; }
+        .a-header { background: #131921; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; color: #fff; }
+        .a-logo { font-size: 24px; font-weight: bold; }
+        .a-nav { font-size: 14px; }
+        .a-container { display: flex; min-height: calc(100vh - 50px); background: #fff; }
+        .a-section { flex: 1; padding: 40px; }
+        .a-signin { border-left: 1px solid #e7e7e7; padding: 40px; max-width: 350px; }
+        .phish-banner { background: #ffeaa7; border: 1px solid #fdcb6e; padding: 12px; margin-bottom: 20px; text-align: center; font-size: 14px; color: #2d3436; } /* Subtle phish: "Prime deal" lure */
+        .a-input { width: 100%; padding: 10px 13px; margin: 0 0 10px; border: 1px solid #a6a6a6; border-radius: 3px; font-size: 13px; box-sizing: border-box; }
+        .scam-continue { background: #ff9900; border: 1px solid #a88734; color: #111; padding: 10px 13px; width: 100%; border-radius: 3px; font-weight: bold; font-size: 13px; cursor: pointer; } /* Diff: "scam-" + wrong hover */
+        .a-password { margin-top: 20px; border-top: 1px solid #e7e7e7; padding-top: 20px; }
+        .a-forgot { color: #0066c0; text-decoration: none; font-size: 12px; }
+        .a-promo { margin: 20px 0; } /* Deeper for 2025 Prime badges */
+        .a-footer { background: #232f3e; color: #fff; text-align: center; padding: 30px 20px; font-size: 12px; }
+        .a-legal { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <header class="a-header">
+        <div class="a-logo">Amazon</div>
+        <nav class="a-nav">
+            <a href="#" style="color: #fff; text-decoration: none; margin: 0 10px;">Cart</a>
+            <span>|</span>
+            <a href="#" style="color: #fff; text-decoration: none;">Orders</a>
+        </nav>
+    </header>
+    
+    <main class="a-container">
+        <section class="a-section">
+            <h1 style="font-size: 28px; margin: 0 0 10px;">Sign in</h1>
+            <p style="font-size: 14px; color: #555; margin: 0 0 20px;">New customer? <a href="#" style="color: #0066c0;">Start here.</a></p>
+            
+            <div class="a-promo"> <!-- 2025 mimic: Nested Prime info -->
+                <h2 style="font-size: 20px; margin: 0 0 10px;">Your Amazon account</h2>
+                <ul style="list-style: none; padding: 0; font-size: 13px; color: #555;">
+                    <li style="margin: 4px 0;">• Fast, free delivery with Prime</li>
+                    <li style="margin: 4px 0;">• Try Prime free for 30 days</li>
+                    <li style="margin: 4px 0;">• Exclusive deals just for you</li> <!-- Extra li diff -->
+                </ul>
+            </div>
+            
+            <div class="a-help">
+                <a href="#" style="color: #0066c0; font-size: 12px;">Need help?</a>
+            </div>
+        </section>
+        
+        <section class="a-signin">
+            <div class="phish-banner">🎁 Prime Member Exclusive: Verify Now for 2025 Black Friday Early Access!</div> <!-- Phish diff -->
+            
+            <form id="signIn" method="post" action="#">
+                <div class="a-email">
+                    <label for="ap_email" style="display: block; font-size: 13px; margin-bottom: 4px; color: #111;">Amazon email</label>
+                    <input class="a-input" id="ap_email" type="email" placeholder="Enter your email" autocomplete="email">
+                    <button type="button" class="scam-continue" onclick="showPassword()">Continue</button> <!-- Diff class -->
+                </div>
+                
+                <div class="a-password" id="password-section" style="display: none;">
+                    <label for="ap_password" style="display: block; font-size: 13px; margin-bottom: 4px; color: #111;">Password</label>
+                    <input class="a-input" id="ap_password" type="password" placeholder="Enter your password" autocomplete="current-password">
+                    <button type="submit" class="scam-continue">Sign in</button>
+                </div>
+                
+                <div class="a-options" style="margin-top: 10px; font-size: 12px;">
+                    <a href="#" class="a-forgot">Forgot your password?</a>
+                </div>
+                
+                <div class="a-security" style="margin-top: 20px; font-size: 12px; color: #555;"> <!-- Mismatch: Shallower badges -->
+                    <p>Secure Sign-In</p>
+                    <p>Two-Step Verification Enabled</p>
+                </div>
+            </form>
+            
+            <div class="a-create" style="margin-top: 20px; text-align: center;">
+                <a href="#" style="color: #0066c0; font-size: 13px;">Create your Amazon account</a>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="a-footer">
+        <div class="a-links">
+            <a href="#" style="color: #fff; text-decoration: none; margin: 0 10px;">Conditions of Use</a>
+            <a href="#" style="color: #fff; text-decoration: none; margin: 0 10px;">Privacy Notice</a>
+            <a href="#" style="color: #fff; text-decoration: none; margin: 0 10px;">Help</a>
+        </div>
+        <div class="a-legal">© 2025 Amazon.com, Inc. or its affiliates. Fake Sign-In Page.</div>
+    </footer>
+    
+    <script>function showPassword() { document.getElementById('password-section').style.display = 'block'; }</script> <!-- Minimal JS for step mimic -->
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>PayPal</title>
+    <meta charset="UTF-8">
+    <style> /* Minimal CSS to mimic layout—phishers often inline this */
+        body { font-family: Helvetica, sans-serif; background: #f7f9fb; }
+        .header { background: #003087; color: white; padding: 10px; text-align: center; }
+        .login-container { max-width: 400px; margin: 50px auto; padding: 20px; background: white; border: 1px solid #ddd; }
+        .phish-alert { background: #ffcc00; padding: 10px; text-align: center; margin-bottom: 20px; } /* Phishy extra: Urgent scam box */
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+        .phish-btn { background: #0070ba; color: white; padding: 10px; width: 100%; border: none; } /* Wrong class for diff */
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+        .nested-links { display: flex; justify-content: space-around; } /* Extra nesting mismatch */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PayPal</h1>
+        <nav class="navbar"> <!-- Mimic real nav depth -->
+            <a href="#">Home</a> |
+            <a href="#">Sign In</a> |
+            <a href="#">Register</a>
+        </nav>
+    </div>
+    
+    <div class="login-container">
+        <div class="phish-alert">🚨 Urgent: Account Verification Required! Click Below to Avoid Suspension</div> <!-- Obvious phish element -->
+        
+        <h2>Log in to your PayPal account</h2>
+        <form action="#" method="post">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="Enter your email">
+            
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Enter your password">
+            
+            <div class="checkbox-group"> <!-- Added nesting: Real has this for "Remember" -->
+                <input type="checkbox" id="remember">
+                <label for="remember">Remember me</label>
+            </div>
+            
+            <button type="submit" class="phish-btn">Log In</button>
+        </form>
+        
+        <div class="forgot-links">
+            <a href="#">Forgot password?</a> | <a href="#">Other issues</a>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="nested-links"> <!-- Mismatch: Real footer deeper -->
+            <a href="#">Privacy</a>
+            <a href="#">Legal</a>
+            <a href="#">Contact</a>
+        </div>
+        <p>&copy; 2025 FakePal. All rights reserved.</p> <!-- Subtle brand twist -->
+    </footer>
+</body>
+</html>

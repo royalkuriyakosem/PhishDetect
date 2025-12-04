@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Facebook - log in or sign up</title>
+    <meta charset="UTF-8">
+    <style> /* Inline CSS for layout mimic */
+        body { font-family: Helvetica, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .viewport { width: 980px; display: flex; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+        .sidebar { flex: 1; padding: 20px; } /* Mimic real right sidebar */
+        .login-main { flex: 1; padding: 20px; text-align: center; }
+        .phish-alert { background: #e4f3ff; border: 1px solid #4f80a7; padding: 10px; margin-bottom: 20px; color: #1c1e21; } /* Phishy extra: Fake security notice */
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dddfe2; border-radius: 5px; }
+        .scam-btn { background: #1877f2; color: white; padding: 12px; width: 100%; border: none; border-radius: 6px; font-weight: bold; } /* Wrong class for diff */
+        .forgot-div { margin-top: 15px; } /* Mismatch: Real has deeper anchors */
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 10px; background: #f0f2f5; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="viewport">
+        <div class="sidebar">
+            <h1>Facebook</h1>
+            <p>Connect with friends and the world around you on Facebook.</p> <!-- Shallow mimic of promo text -->
+            <div class="nested-promo"> <!-- Extra nesting diff -->
+                <ul>
+                    <li>Discover</li>
+                    <li>Share</li>
+                    <li>Connect</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="login-main">
+            <div class="phish-alert">⚠️ Urgent Security Update: Verify Your Account Immediately to Prevent Lockout!</div> <!-- Obvious phish element -->
+            
+            <form action="#" method="post">
+                <input type="email" placeholder="Email or phone number" id="email"> <!-- Reversed order from real -->
+                <input type="password" placeholder="Password" id="pass">
+                
+                <div class="checkbox-group"> <!-- Added nesting: Real has "Remember" -->
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Keep me logged in</label>
+                </div>
+                
+                <button type="submit" class="scam-btn">Log In</button>
+            </form>
+            
+            <div class="forgot-div">
+                <a href="#">Forgot Password?</a>
+            </div>
+            
+            <hr>
+            <button class="create-btn">Create New Account</button> <!-- Flipped placement -->
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="footer-links"> <!-- Mismatch: Shallower than real -->
+            <a href="#">English</a> | <a href="#">Privacy</a> | <a href="#">Terms</a>
+        </div>
+        <p>&copy; 2025 FakeBook Inc.</p>
+    </footer>
+</body>
+</html>
