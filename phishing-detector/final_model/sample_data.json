@@ -1,0 +1,32 @@
+[
+  {
+    "url": "https://www.paypal.com/login",
+    "brand": "paypal",
+    "url_score": 0.95
+  },
+  {
+    "url": "http://fake-paypal-scam.com/login",
+    "brand": "paypal",
+    "url_score": 0.12
+  },
+  {
+    "url": "https://www.facebook.com",
+    "brand": "facebook",
+    "url_score": 0.92
+  },
+  {
+    "url": "http://fb-phish.net",
+    "brand": "facebook",
+    "url_score": 0.18
+  },
+  {
+    "url": "https://www.amazon.com",
+    "brand": "amazon",
+    "url_score": 0.98
+  },
+  {
+    "url": "http://amazon-deal-fake.co",
+    "brand": "amazon",
+    "url_score": 0.09
+  }
+]

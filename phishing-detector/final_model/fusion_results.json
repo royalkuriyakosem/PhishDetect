@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://www.paypal.com/login",
+    "brand": "paypal",
+    "url_score": 0.95,
+    "dom_score": 1.0,
+    "hybrid_score": 0.97,
+    "threshold": 0.4,
+    "label": "\u2705 Legitimate"
+  },
+  {
+    "url": "http://fake-paypal-scam.com/login",
+    "brand": "paypal",
+    "url_score": 0.12,
+    "dom_score": 0.2592402606458915,
+    "hybrid_score": 0.1756961042583566,
+    "threshold": 0.4,
+    "label": "\u26a0\ufe0f PHISHING!"
+  },
+  {
+    "url": "https://www.facebook.com",
+    "brand": "facebook",
+    "url_score": 0.92,
+    "dom_score": 1.0,
+    "hybrid_score": 0.9520000000000001,
+    "threshold": 0.4,
+    "label": "\u2705 Legitimate"
+  },
+  {
+    "url": "http://fb-phish.net",
+    "brand": "facebook",
+    "url_score": 0.18,
+    "dom_score": 0.23457028809379765,
+    "hybrid_score": 0.20182811523751906,
+    "threshold": 0.4,
+    "label": "\u26a0\ufe0f PHISHING!"
+  },
+  {
+    "url": "https://www.amazon.com",
+    "brand": "amazon",
+    "url_score": 0.98,
+    "dom_score": 1.0,
+    "hybrid_score": 0.988,
+    "threshold": 0.2,
+    "label": "\u2705 Legitimate"
+  },
+  {
+    "url": "http://amazon-deal-fake.co",
+    "brand": "amazon",
+    "url_score": 0.09,
+    "dom_score": 0.03174563637806794,
+    "hybrid_score": 0.06669825455122717,
+    "threshold": 0.2,
+    "label": "\u26a0\ufe0f PHISHING!"
+  }
+]

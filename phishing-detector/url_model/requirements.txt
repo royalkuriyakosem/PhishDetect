@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+tensorflow
+scikit-learn
+numpy
+pandas
+tldextract
+python-multipart
