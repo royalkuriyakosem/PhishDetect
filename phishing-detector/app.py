@@ -93,7 +93,7 @@ def extract_dom_via_puppeteer(url):
     try:
         print(f"Running subprocess for URL: {url}")
         result = subprocess.run(["node", puppeteer_path, url, temp_dom], 
-                                check=True, timeout=60, shell=True, 
+                                check=True, timeout=60, 
                                 capture_output=True, text=True)  # Capture stdout/stderr
         print(f"Subprocess stdout: {result.stdout[:500]}...")  # First 500 chars
         print(f"Subprocess stderr: {result.stderr}")
