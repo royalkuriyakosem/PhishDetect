@@ -12,7 +12,6 @@ The system fuses these scores to provide a final **Phishing Probability**.
 
 ## 2. Architecture Overview
 
-```mermaid
 graph TD
     User[User Browser] -->|URL + Brand| Frontend[Frontend (HTML/JS)]
     Frontend -->|POST /predict| API[FastAPI Server (app.py)]
@@ -31,7 +30,7 @@ graph TD
     VisualEngine -->|Score| Fusion
     
     Fusion -->|Final Probability| Frontend
-```
+
 
 ---
 
