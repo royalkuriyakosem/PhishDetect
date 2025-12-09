@@ -16,6 +16,7 @@ async function extractDOM(url, outputFile) {
     }
     return traverse(document.body);
   });
+  await page.screenshot({ path: outputFile.replace('.json', '.png'), fullPage: true });
   fs.writeFileSync(outputFile, JSON.stringify(domTree, null, 2));
   await browser.close();
 }

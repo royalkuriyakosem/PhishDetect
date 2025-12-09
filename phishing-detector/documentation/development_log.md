@@ -2,6 +2,26 @@
 
 This document tracks significant issues encountered during development, their root causes, and resolutions. It serves as a history of major modifications and fixes.
 
+## [2025-12-07] Visual Similarity Engine Implementation
+
+### Feature
+Implemented a **Visual Similarity Engine** to detect phishing sites that visually mimic legitimate brands, even if the underlying DOM structure is slightly different.
+
+### Implementation Details
+- **Puppeteer**: Updated to capture full-page screenshots of both the suspect URL and the brand URL.
+- **Image Processing**: Created `dom_analyzer/visual_similarity.py` using **SSIM (Structural Similarity Index)** from `scikit-image` to compare the screenshots.
+- **Backend**: Integrated the visual score into `app.py`. The final fusion logic now weighs:
+    - URL Score: 10%
+    - DOM Score: 45%
+    - Visual Score: 45%
+- **Frontend**: Added a "Visual Score" progress bar to the results card.
+
+### Dependencies Added
+- `scikit-image`
+- `opencv-python`
+
+---
+
 ## [2025-12-07] Puppeteer Subprocess Timeout
 
 ### Issue

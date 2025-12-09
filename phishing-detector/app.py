@@ -26,7 +26,8 @@ print(f"Added path: {dom_path}")
 # Import DOM scorer
 try:
     from dom_similarity import dom_score
-    print("DOM scorer imported!")
+    from visual_similarity import calculate_visual_score
+    print("DOM & Visual scorers imported!")
 except ImportError as e:
     print(f"DOM import error: {e}")
     raise
@@ -87,21 +88,20 @@ def get_url_score(url):
     return float(pred)
 
 # Phase 2: DOM Extraction & Score
-def extract_dom_via_puppeteer(url):
+def extract_dom_via_puppeteer(url, output_path="temp_dom.json"):
     puppeteer_path = "dom_analyzer/puppeteer_script.js"
-    temp_dom = "temp_dom.json"
     try:
         print(f"Running subprocess for URL: {url}")
-        result = subprocess.run(["node", puppeteer_path, url, temp_dom], 
+        result = subprocess.run(["node", puppeteer_path, url, output_path], 
                                 check=True, timeout=60, 
-                                capture_output=True, text=True)  # Capture stdout/stderr
-        print(f"Subprocess stdout: {result.stdout[:500]}...")  # First 500 chars
-        print(f"Subprocess stderr: {result.stderr}")
-        if os.path.exists(temp_dom):
-            with open(temp_dom, "r") as f:
+                                capture_output=True, text=True)
+        print(f"Subprocess stdout: {result.stdout[:500]}...")
+        
+        if os.path.exists(output_path):
+            with open(output_path, "r") as f:
                 dom_tree = json.load(f)
             print(f"Tree loaded! Size: {len(json.dumps(dom_tree)) / 1000:.1f} KB")
-            os.remove(temp_dom)
+            # Caller is responsible for cleanup now
             return dom_tree
         else:
             print("Temp file not created!")
@@ -111,63 +111,181 @@ def extract_dom_via_puppeteer(url):
         return None
     except Exception as e:
         print(f"Subprocess error: {e}")
-        if os.path.exists(temp_dom):
-            os.remove(temp_dom)
+        if os.path.exists(output_path):
+            os.remove(output_path)
         return None
 
 def get_dom_score(url, brand):
-    # Fetch test tree (from user URL)
-    dom_tree = extract_dom_via_puppeteer(url)
-    if not dom_tree:
-        return 0.5  # Neutral fallback
-    
-    # Fetch brand tree live (your idea – dynamic baseline)
-    brand_url = f"https://www.{brand}.com"  # Adjust for www. or subdomains if needed
-    brand_tree = extract_dom_via_puppeteer(brand_url)
-    if not brand_tree:
-        return 0.5  # Fallback if brand fetch fails
-    
-    # Save both to temp for comparison
+    # Define paths
+    debug_dir = "static/debug_visuals"
+    if not os.path.exists(debug_dir):
+        os.makedirs(debug_dir)
+        
     temp_test_path = "temp_test_dom.json"
     temp_brand_path = "temp_brand_dom.json"
-    with open(temp_test_path, "w") as f:
-        json.dump(dom_tree, f)
-    with open(temp_brand_path, "w") as f:
-        json.dump(brand_tree, f)
-    
-    # Compute score
-    score = dom_score(temp_test_path, temp_brand_path)
-    
-    # Cleanup
-    os.remove(temp_test_path)
-    os.remove(temp_brand_path)
-    
-    return score
+    temp_test_img = os.path.join(debug_dir, "temp_test_dom.png")
+    temp_brand_img = os.path.join(debug_dir, "temp_brand_dom.png")
 
-# Phase 3: Fusion (DOM-heavy: 0.1 URL + 0.9 DOM)
-def fuse_scores(url_score, dom_score, brand):
-    if dom_score < 0.45:
-        return 0.35, "Phishing", 0.40          # Changed from 0.92 → 0.35 (below 0.40)
+    # Fetch test tree & screenshot
+    dom_tree = extract_dom_via_puppeteer(url, temp_test_path)
+    if not dom_tree:
+        return 0.5, 0.5  # Neutral fallback for both
     
-    DOM_WEIGHT = 0.90
+    # Move screenshot if it was created in root (puppeteer script default)
+    # The puppeteer script saves to outputFile.replace('.json', '.png')
+    # So if temp_test_path is "temp_test_dom.json", img is "temp_test_dom.png"
+    # We need to move it to our debug dir
+    root_test_img = temp_test_path.replace('.json', '.png')
+    if os.path.exists(root_test_img):
+        os.rename(root_test_img, temp_test_img)
+    
+    # Fetch brand tree & screenshot
+    brand_url = f"https://www.{brand}.com"
+    brand_tree = extract_dom_via_puppeteer(brand_url, temp_brand_path)
+    
+    # Move brand screenshot
+    root_brand_img = temp_brand_path.replace('.json', '.png')
+    if os.path.exists(root_brand_img):
+        os.rename(root_brand_img, temp_brand_img)
+
+    if not brand_tree:
+        # Cleanup test files if brand fails
+        if os.path.exists(temp_test_path): os.remove(temp_test_path)
+        return 0.5, 0.5
+    
+    # Compute DOM score
+    d_score = dom_score(temp_test_path, temp_brand_path)
+    
+    # Compute Visual score
+    v_score = calculate_visual_score(temp_test_img, temp_brand_img)
+    print(f"Visual Score: {v_score:.4f}")
+
+    # Cleanup JSONs but KEEP images for debug
+    for f in [temp_test_path, temp_brand_path]:
+        if os.path.exists(f):
+            os.remove(f)
+    
+    return d_score, v_score
+
+# Phase 3: Fusion (URL + DOM + Visual)
+def fuse_scores(url_score, dom_score, visual_score, brand):
+    # Logic:
+    # URL Score: High = Phishing (from model)
+    # DOM Score: High = Identical Structure (Phishing if domain mismatch)
+    # Visual Score: High = Identical Visuals (Phishing if domain mismatch)
+    
+    # Weights: URL(10%), DOM(45%), Visual(45%)
     URL_WEIGHT = 0.10
+    DOM_WEIGHT = 0.45
+    VISUAL_WEIGHT = 0.45
     
-    hybrid = DOM_WEIGHT * dom_score
+    # If visual score is missing (e.g. 0.0 or failed), redistribute weight to DOM
+    if visual_score == 0.0:
+        DOM_WEIGHT += VISUAL_WEIGHT
+        VISUAL_WEIGHT = 0.0
     
-    if url_score <= 0.5:
-        hybrid += URL_WEIGHT * (1.0 - url_score)
-    else:
-        phishing_strength = url_score - 0.5
-        hybrid -= URL_WEIGHT * (phishing_strength * 2)
+    hybrid = (URL_WEIGHT * url_score) + (DOM_WEIGHT * dom_score) + (VISUAL_WEIGHT * visual_score)
     
-    hybrid = max(0.0, min(1.0, hybrid))
+    # Threshold logic
+    # If hybrid score is HIGH, it means it looks/acts like the target brand.
+    # If domain mismatch was already applied (penalty), the scores might be lower.
+    # Wait, the penalty logic in predict() REDUCES the score if domain mismatch.
+    # So:
+    # - Real Brand: High Score (1.0) -> Domain Match -> No Penalty -> High Hybrid -> Legitimate?
+    # - Phishing: High Score (1.0) -> Domain Mismatch -> Penalty (0.5) -> Low Hybrid -> Phishing?
     
-    # FINAL CHANGE: If label is Phishing → force hybrid < 0.40
-    label = "Phishing" if (hybrid < 0.40 or dom_score < 0.45) else "Legitimate"
-    if label == "Phishing":
-        hybrid = min(hybrid, 0.39)  # Ensures fusion score is ALWAYS < 0.40 when Phishing
+    # Let's align with the user's request: "url model is higher for phishing"
+    # Usually:
+    # 0.0 = Safe / Different
+    # 1.0 = Phishing / Identical (for URL model)
     
-    return round(hybrid, 4), label, 0.40
+    # But for DOM/Visual:
+    # 1.0 = Identical to Brand.
+    # If Domain Match = True, then 1.0 is GOOD (It IS the brand).
+    # If Domain Match = False, then 1.0 is BAD (It is a clone).
+    
+    # The predict() function applies a penalty if domain mismatch.
+    # dom_score = dom_score_raw * dom_penalty (0.5)
+    
+    # So if Phishing site (Identical, 1.0) -> Penalty -> 0.5.
+    # If Safe site (Different, 0.0) -> Penalty -> 0.0.
+    # If Real Brand (Identical, 1.0) -> No Penalty -> 1.0.
+    
+    # This implies:
+    # High Hybrid (> 0.8) = Legitimate (It is the brand)
+    # Mid Hybrid (~0.5) = Phishing (It looks like brand but wrong domain)
+    # Low Hybrid (< 0.3) = Legitimate (Random site, doesn't look like brand)
+    
+    # This is tricky. Let's simplify based on standard Phishing detection:
+    # We want a "Phishing Probability".
+    # URL Model: 1.0 = Phishing.
+    # Visual/DOM: 1.0 = Identical.
+    
+    # If Domain Mismatch AND High Visual/DOM -> Phishing Probability = HIGH.
+    # If Domain Match AND High Visual/DOM -> Phishing Probability = LOW.
+    
+    # Let's rework the fusion to return a "Phishing Probability".
+    
+    # We need to pass 'is_domain_match' to this function or handle it before.
+    # The current architecture passes scores that are already penalized.
+    # Let's stick to the current flow but fix the interpretation.
+    
+    # Current flow in predict():
+    # if not domain_match: penalty = 0.5
+    # dom = raw * penalty
+    
+    # If Phishing (Clone): Raw=1.0 * 0.5 = 0.5. Hybrid ~= 0.5.
+    # If Real Brand: Raw=1.0 * 1.0 = 1.0. Hybrid ~= 1.0.
+    # If Random Site: Raw=0.0 * 0.5 = 0.0. Hybrid ~= 0.0.
+    
+    # So Phishing is in the middle? That's not ideal for a simple threshold.
+    
+    # ALTERNATIVE LOGIC (Better):
+    # Calculate Similarity (0 to 1).
+    # If Similarity is High AND Domain is Mismatch -> Phishing.
+    # If Similarity is High AND Domain is Match -> Legitimate.
+    # If Similarity is Low -> Legitimate (not targeting this brand).
+    
+    # Since we can't easily change the whole flow in one edit, let's adjust the thresholding here.
+    # We will assume the caller (predict) handles the "Phishing" determination logic better,
+    # OR we return the raw similarity here and let predict decide.
+    
+    # But `fuse_scores` returns the label.
+    # Let's try this:
+    # The caller `predict` has `is_domain_match`.
+    # Let's assume `fuse_scores` just calculates a "Similarity Score".
+    
+    # We will return the hybrid score. The LABEL generation should happen in `predict` ideally,
+    # but since it's here, let's make it generic.
+    
+    threshold = 0.7 # High similarity
+    
+    # We can't determine Phishing vs Legit purely on score without knowing if domain matched.
+    # But wait, `predict` calls this.
+    # Let's just return the score and let `predict` handle the label? 
+    # The function signature expects label.
+    
+    # Let's keep it simple:
+    # We will return the Hybrid Score (Similarity to Brand).
+    # The Label will be determined by the caller? No, the caller expects label from here.
+    
+    # Okay, I will change `predict` to pass `is_domain_match` to `fuse_scores`?
+    # Or I can just return the score and move logic to `predict`.
+    # I'll stick to the plan: "Invert threshold check" was the plan, but that assumes High=Phishing.
+    
+    # Let's make `fuse_scores` just return the score, and I'll update `predict` to do the logic.
+    # But I can only edit one block.
+    
+    # I will update `fuse_scores` to take `is_domain_match` (I can't change signature easily without changing caller).
+    # Actually, I am editing `app.py` so I CAN change both if they are in the file.
+    # The `predict` function is below this block.
+    
+    # I will change `fuse_scores` to just return the score, and I will update `predict` in a separate edit 
+    # (or if I can capture it in one go).
+    # `predict` is lines 174+. My edit ends at 172.
+    # I will extend the edit to include `predict`.
+    
+    return round(hybrid, 4), "See_Predict_Logic", threshold
 # Predict Endpoint
 @app.post("/predict")
 def predict(data: URLRequest):
@@ -179,22 +297,47 @@ def predict(data: URLRequest):
         domain = urlparse(url).netloc.lower()
         expected_domain = f"{brand}.com"  # Simple match (expand for www, etc.)
         is_domain_match = expected_domain in domain
-        if not is_domain_match:
-            print(f"Domain mismatch: {domain} vs {expected_domain} – Penalizing DOM")
-            dom_penalty = 0.5  # Halve DOM score for typos/suspicious
-        else:
-            dom_penalty = 1.0
 
         url_score = get_url_score(url)
-        dom_score = get_dom_score(url, brand) * dom_penalty  # Apply penalty
-        hybrid_score, label, threshold = fuse_scores(url_score, dom_score, brand)
+        dom_score, visual_score = get_dom_score(url, brand)
+        
+        # Fusion Logic
+        # 1. Calculate Structural/Visual Similarity to the Brand (0.0 to 1.0)
+        #    If visual_score is 0 (failed), rely on DOM.
+        if visual_score > 0:
+            similarity_score = (dom_score * 0.5) + (visual_score * 0.5)
+        else:
+            similarity_score = dom_score
+            
+        # 2. Determine Phishing Probability
+        #    - URL Model: 1.0 = Phishing
+        #    - Similarity: 1.0 = Identical to Brand
+        
+        if is_domain_match:
+            # If it IS the brand, high similarity is GOOD. 
+            # Phishing probability relies mostly on URL anomalies (rare for real brand)
+            # We trust the domain match heavily.
+            phishing_prob = url_score * 0.1 # Very low probability even if URL model is paranoid
+        else:
+            # If it is NOT the brand:
+            # - High Similarity = High Phishing Probability (Clone)
+            # - Low Similarity = Low Phishing Probability (Just a random other site)
+            
+            # Weight: 20% URL Model, 80% Similarity (Clones are dangerous)
+            phishing_prob = (url_score * 0.2) + (similarity_score * 0.8)
+
+        threshold = 0.5
+        label = "Phishing" if phishing_prob > threshold else "Legitimate"
+        
         return {
             "url": url,
             "brand": brand,
             "domain_match": is_domain_match,
             "url_score": url_score,
             "dom_score": dom_score,
-            "hybrid_score": hybrid_score,
+            "visual_score": visual_score,
+            "similarity_score": round(similarity_score, 4),
+            "hybrid_score": round(phishing_prob, 4), # Renamed for frontend compatibility
             "threshold": threshold,
             "final_label": label
         }

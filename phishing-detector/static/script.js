@@ -40,6 +40,11 @@ function displayResults(data) {
     domBar.style.width = `${data.dom_score * 100}%`;
     document.getElementById('domValue').textContent = `Score: ${data.dom_score.toFixed(3)} (Higher = Matches Brand)`;
 
+    // Visual Score (Phase 2.5)
+    const visualBar = document.getElementById('visualScore').querySelector('.progress-bar');
+    visualBar.style.width = `${data.visual_score * 100}%`;
+    document.getElementById('visualValue').textContent = `Score: ${data.visual_score.toFixed(3)} (Higher = Visually Similar)`;
+
     // Fusion Score (Phase 3)
     const hybridBar = document.getElementById('hybridScore').querySelector('.progress-bar');
     hybridBar.style.width = `${data.hybrid_score * 100}%`;

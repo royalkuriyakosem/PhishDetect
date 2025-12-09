@@ -12,18 +12,33 @@ Ensure you have the following installed:
 
 Open your terminal in the project root: `/home/royalkm2004/Desktop/main-project/phishing-detector`
 
-### Activate Python Virtual Environment
-```bash
-source url_model/venv/bin/activate
-```
+### Python Setup
+1. Create a virtual environment:
+   ```bash
+   python3 -m venv venv
+   ```
+2. Activate the virtual environment:
+   ```bash
+   source venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### Install Node.js Dependencies (One-time setup)
-If you haven't done this yet:
-```bash
-cd dom_analyzer
-npm install
-cd ..
-```
+### Node.js Setup (for Puppeteer)
+1. Navigate to the `dom_analyzer` directory:
+   ```bash
+   cd dom_analyzer
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Return to the root directory:
+   ```bash
+   cd ..
+   ```
 
 ## 2. Start the Server
 
