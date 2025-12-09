@@ -32,8 +32,10 @@ function displayResults(data) {
 
     // URL Score (Phase 1)
     const urlBar = document.getElementById('urlScore').querySelector('.progress-bar');
-    urlBar.style.width = `${data.url_score * 100}%`;
-    document.getElementById('urlValue').textContent = `Score: ${data.url_score.toFixed(3)} (Higher = Legit)`;
+    // Invert Score: 1.0 - Phishing Prob = Legitimacy Score
+    const urlLegitScore = 1.0 - data.url_score;
+    urlBar.style.width = `${urlLegitScore * 100}%`;
+    document.getElementById('urlValue').textContent = `Score: ${urlLegitScore.toFixed(3)} (Higher = Legit)`;
 
     // DOM Score (Phase 2)
     const domBar = document.getElementById('domScore').querySelector('.progress-bar');
@@ -46,9 +48,13 @@ function displayResults(data) {
     document.getElementById('visualValue').textContent = `Score: ${data.visual_score.toFixed(3)} (Higher = Visually Similar)`;
 
     // Fusion Score (Phase 3)
+    // User Request: Low = Phishing, High = Legit
+    // Backend returns Phishing Probability (High = Phishing)
+    // So we invert it: Legit Score = 1.0 - Phishing Probability
+    const legitScore = 1.0 - data.hybrid_score;
     const hybridBar = document.getElementById('hybridScore').querySelector('.progress-bar');
-    hybridBar.style.width = `${data.hybrid_score * 100}%`;
-    document.getElementById('hybridValue').textContent = `Score: ${data.hybrid_score.toFixed(3)} (Weighted Avg)`;
+    hybridBar.style.width = `${legitScore * 100}%`;
+    document.getElementById('hybridValue').textContent = `Score: ${legitScore.toFixed(3)} (Higher = Legit)`;
 
     // Final Label
     const labelEl = document.getElementById('finalLabel');

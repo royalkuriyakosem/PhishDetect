@@ -129,7 +129,7 @@ def get_dom_score(url, brand):
     # Fetch test tree & screenshot
     dom_tree = extract_dom_via_puppeteer(url, temp_test_path)
     if not dom_tree:
-        return 0.5, 0.5  # Neutral fallback for both
+        return None, None  # Signal failure instead of neutral score
     
     # Move screenshot if it was created in root (puppeteer script default)
     # The puppeteer script saves to outputFile.replace('.json', '.png')
@@ -151,7 +151,8 @@ def get_dom_score(url, brand):
     if not brand_tree:
         # Cleanup test files if brand fails
         if os.path.exists(temp_test_path): os.remove(temp_test_path)
-        return 0.5, 0.5
+        if os.path.exists(temp_test_path): os.remove(temp_test_path)
+        return None, None
     
     # Compute DOM score
     d_score = dom_score(temp_test_path, temp_brand_path)
@@ -302,29 +303,46 @@ def predict(data: URLRequest):
         dom_score, visual_score = get_dom_score(url, brand)
         
         # Fusion Logic
-        # 1. Calculate Structural/Visual Similarity to the Brand (0.0 to 1.0)
-        #    If visual_score is 0 (failed), rely on DOM.
-        if visual_score > 0:
-            similarity_score = (dom_score * 0.5) + (visual_score * 0.5)
+        if dom_score is None:
+            # Site Unreachable -> Rely 100% on URL Model
+            print("DEBUG: Site Unreachable. Fallback to URL Model.")
+            dom_score = 0.0
+            visual_score = 0.0
+            similarity_score = 0.0
+            phishing_prob = url_score
         else:
-            similarity_score = dom_score
+            # Site Reachable -> Hybrid Logic
+            # 1. Calculate Structural/Visual Similarity to the Brand (0.0 to 1.0)
+            #    If visual_score is 0 (failed), rely on DOM.
+            if visual_score > 0:
+                similarity_score = (dom_score * 0.5) + (visual_score * 0.5)
+            else:
+                similarity_score = dom_score
+                
+            # 2. Determine Phishing Probability
+            #    - URL Model: 1.0 = Phishing
+            #    - Similarity: 1.0 = Identical to Brand
             
-        # 2. Determine Phishing Probability
-        #    - URL Model: 1.0 = Phishing
-        #    - Similarity: 1.0 = Identical to Brand
-        
-        if is_domain_match:
-            # If it IS the brand, high similarity is GOOD. 
-            # Phishing probability relies mostly on URL anomalies (rare for real brand)
-            # We trust the domain match heavily.
-            phishing_prob = url_score * 0.1 # Very low probability even if URL model is paranoid
-        else:
-            # If it is NOT the brand:
-            # - High Similarity = High Phishing Probability (Clone)
-            # - Low Similarity = Low Phishing Probability (Just a random other site)
-            
-            # Weight: 20% URL Model, 80% Similarity (Clones are dangerous)
-            phishing_prob = (url_score * 0.2) + (similarity_score * 0.8)
+            if is_domain_match:
+                # If it IS the brand, high similarity is GOOD. 
+                # Phishing probability relies mostly on URL anomalies (rare for real brand)
+                # We trust the domain match heavily.
+                phishing_prob = url_score * 0.1 # Very low probability even if URL model is paranoid
+            else:
+                # If it is NOT the brand:
+                # - High Similarity = High Phishing Probability (Clone)
+                # - Low Similarity = Low Phishing Probability (Just a random other site)
+                
+                # Weight: 20% URL Model, 80% Similarity (Clones are dangerous)
+                phishing_prob = (url_score * 0.2) + (similarity_score * 0.8)
+
+        print(f"DEBUG: URL={url}, Brand={brand}")
+        print(f"DEBUG: Domain Match={is_domain_match}")
+        print(f"DEBUG: URL Score={url_score}")
+        print(f"DEBUG: DOM Score={dom_score}")
+        print(f"DEBUG: Visual Score={visual_score}")
+        print(f"DEBUG: Similarity Score={similarity_score}")
+        print(f"DEBUG: Phishing Prob (Hybrid)={phishing_prob}")
 
         threshold = 0.5
         label = "Phishing" if phishing_prob > threshold else "Legitimate"
