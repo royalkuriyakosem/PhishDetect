@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./app:/app/app
+      - ./models_data:/app/models_data
+    environment:
+      - DEBUG=true
+    # Increase shared memory size for Chrome (Puppeteer)
+    shm_size: '1gb' 
